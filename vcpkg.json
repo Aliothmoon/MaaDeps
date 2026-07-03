@@ -34,7 +34,8 @@
     "maa-fastdeploy",
     {
       "name": "ncnn",
-      "platform": "android"
+      "platform": "android",
+      "features": ["vulkan"]
     },
     "zlib",
     "boost-asio",
