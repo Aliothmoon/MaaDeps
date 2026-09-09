@@ -64,3 +64,23 @@ diff -ur a/cmake/onnxruntime_providers_webgpu.cmake b/cmake/onnxruntime_provider
      endif()
  
      if (WIN32 AND onnxruntime_ENABLE_DAWN_BACKEND_D3D12)
+@@ -240,8 +240,18 @@
+       # until we figure out how to resolve the packaging pipeline failures
+       #
+       # if (onnxruntime_USE_VCPKG)
+-      if (FALSE)
++      if (onnxruntime_USE_VCPKG)
+         find_package(directx-dxc CONFIG REQUIRED)
++        # WORKAROUND: vcpkg's directx-dxc port misspells IMPORTED_LOCATION_RELEASE as
++        # IMPORTED_LOCATION_RELASE on Microsoft::DXIL, so $<TARGET_FILE:Microsoft::DXIL>
++        # below fails to resolve in Release builds. No-op once the port is fixed upstream.
++        get_target_property(_maa_dxil_release Microsoft::DXIL IMPORTED_LOCATION_RELEASE)
++        if (NOT _maa_dxil_release)
++          get_target_property(_maa_dxil_relase Microsoft::DXIL IMPORTED_LOCATION_RELASE)
++          if (_maa_dxil_relase)
++            set_target_properties(Microsoft::DXIL PROPERTIES IMPORTED_LOCATION_RELEASE "${_maa_dxil_relase}")
++          endif()
++        endif()
+         target_link_libraries(onnxruntime_providers_webgpu Microsoft::DirectXShaderCompiler)
+         target_link_libraries(onnxruntime_providers_webgpu Microsoft::DXIL)
+         list(APPEND onnxruntime_providers_webgpu_dll_deps "$<TARGET_FILE:Microsoft::DXIL>")
